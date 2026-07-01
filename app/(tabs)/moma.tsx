@@ -176,8 +176,8 @@ export default function MoMARoulette() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#101014" },
-  container: { padding: 16, gap: 16, minHeight: "100%", backgroundColor: "#101014" },
+  safe: { flex: 1, backgroundColor: "#fff" },
+  container: { padding: 16, gap: 16, minHeight: "100%", backgroundColor: "#fff" },
   brandBar: {
     backgroundColor: "#fff",
     paddingVertical: 10,
