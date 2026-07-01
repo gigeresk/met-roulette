@@ -21,6 +21,15 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="moma"
+        options={{
+          title: "MoMA",
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="palette-outline" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="aic"
         options={{
           title: "AIC",
