@@ -1,6 +1,6 @@
 // app/(tabs)/cma.tsx
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 import * as MediaLibrary from "expo-media-library";
 import { useCallback, useEffect, useState } from "react";
 import {

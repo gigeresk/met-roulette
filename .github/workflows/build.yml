@@ -1,0 +1,48 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Cancel superseded runs on the same ref (e.g. new pushes to a PR)
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Lint & web build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm # caches the global ~/.npm download cache, keyed on package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Speeds up `expo export` by reusing Metro's transform cache between runs.
+      - name: Cache Metro / Expo bundler
+        uses: actions/cache@v4
+        with:
+          path: |
+            .expo
+            node_modules/.cache
+            ${{ runner.temp }}/metro-cache
+          key: metro-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
+          restore-keys: |
+            metro-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+            metro-${{ runner.os }}-
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Web build (expo export)
+        run: npx expo export --platform web
