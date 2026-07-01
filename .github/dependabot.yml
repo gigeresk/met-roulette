@@ -1,0 +1,13 @@
+version: 2
+updates:
+  # Bump the MoMA `collection` submodule whenever upstream
+  # (github.com/MuseumofModernArt/collection) gets new commits.
+  - package-ecosystem: "gitsubmodule"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "chore(submodule)"
+    labels:
+      - "dependencies"
+      - "moma-collection"
