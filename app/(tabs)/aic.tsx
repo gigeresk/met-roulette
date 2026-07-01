@@ -20,17 +20,26 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const BASE = "https://api.artic.edu/api/v1";
 
-// Build a random search that only returns public-domain artworks with images.
-// We pick a random "from" offset (kept under 9000 to stay well within the 10k window).
-function aicRandomSearchUrl(size = 20) {
-  const MAX_FROM = 9000; // stay below 10k search window
-  const from = Math.floor(Math.random() * MAX_FROM);
+// AIC's search API rejects deep pagination (it 403s "Invalid number of results"
+// once from + size > 1000) and ignores Elasticsearch random_score. To pull a
+// *random* artwork from the whole ~58k public-domain collection in a single
+// request, we filter to ids >= a random pivot and take the first matches sorted
+// ascending. Artwork ids currently run from a few up to ~286k; bump AIC_MAX_ID
+// if the collection outgrows it (an over-large pivot just yields an empty page,
+// which the fetch loop retries).
+const AIC_MIN_ID = 1;
+const AIC_MAX_ID = 290000;
+
+function aicRandomSearchUrl(size = 12) {
+  const pivot =
+    AIC_MIN_ID + Math.floor(Math.random() * (AIC_MAX_ID - AIC_MIN_ID));
   const params = {
     query: {
       bool: {
         must: [
           { term: { is_public_domain: true } },
-          { exists: { field: "image_id" } }
+          { exists: { field: "image_id" } },
+          { range: { id: { gte: pivot } } }
         ]
       }
     },
@@ -43,8 +52,9 @@ function aicRandomSearchUrl(size = 20) {
       "department_title",
       "credit_line"
     ],
+    sort: [{ id: "asc" }],
     size,
-    from
+    from: 0
   };
   return `${BASE}/artworks/search?params=${encodeURIComponent(JSON.stringify(params))}`;
 }
@@ -83,19 +93,45 @@ export default function AICRoulette() {
             setError("");
             setArt(null);
 
-            const ATTEMPTS = 12;     // try up to 12 different random windows
-            const BATCH_SIZE = 10;   // grab 10 at a time to improve odds
+            const ATTEMPTS = 6;      // each attempt now succeeds ~always; retries cover transient errors
+            const BATCH_SIZE = 12;   // small window past the pivot; we pick one at random from it
+            let lastIssue = "";      // why the most recent attempt failed (for diagnostics)
 
             try {
             for (let attempt = 0; attempt < ATTEMPTS && !cancelled; attempt++) {
-                const res = await fetch(aicRandomSearchUrl(BATCH_SIZE));
-                const json = await res.json();
+                // Network-level failure (offline, DNS, CORS) — retry.
+                let res: Response;
+                try {
+                    res = await fetch(aicRandomSearchUrl(BATCH_SIZE));
+                } catch {
+                    lastIssue = "network error";
+                    continue;
+                }
+
+                // HTTP-level failure (rate limit, 5xx, unexpected 4xx) — retry.
+                if (!res.ok) {
+                    lastIssue = `HTTP ${res.status}`;
+                    continue;
+                }
+
+                let json: any;
+                try {
+                    json = await res.json();
+                } catch {
+                    lastIssue = "bad JSON response";
+                    continue;
+                }
 
                 const items: any[] = Array.isArray(json?.data) ? json.data : [];
                 // filter to only entries that actually have an image_id
                 const candidates = items.filter(it => !!it?.image_id);
 
-                if (candidates.length) {
+                // Empty page (pivot landed past the last id) — retry with a new pivot.
+                if (!candidates.length) {
+                    lastIssue = "no results for this pivot";
+                    continue;
+                }
+
                 // pick one at random from this batch
                 const item = candidates[Math.floor(Math.random() * candidates.length)];
 
@@ -116,18 +152,18 @@ export default function AICRoulette() {
                     setLoading(false);
                 }
                 return; // done
-                }
-                // otherwise loop and try another random window
             }
 
             // if we fell out of the loop without finding anything:
             if (!cancelled) {
-                setError("Couldn’t find an AIC image right now. Pull to refresh.");
+                console.warn(`AIC: no artwork after ${ATTEMPTS} attempts (last issue: ${lastIssue || "unknown"})`);
+                setError("Couldn’t reach the Art Institute of Chicago right now. Pull to refresh.");
                 setLoading(false);
             }
             } catch (e) {
             if (!cancelled) {
-                setError("Couldn’t find an AIC image right now. Pull to refresh.");
+                console.warn("AIC: unexpected error", e);
+                setError("Couldn’t reach the Art Institute of Chicago right now. Pull to refresh.");
                 setLoading(false);
             }
             }
