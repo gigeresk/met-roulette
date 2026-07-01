@@ -46,3 +46,11 @@ jobs:
 
       - name: Web build (expo export)
         run: npx expo export --platform web
+
+      # Deploy the freshly-built ./dist to Cloudflare. Only on pushes to main —
+      # PR runs still lint + build for validation but never publish.
+      - name: Deploy to Cloudflare
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
