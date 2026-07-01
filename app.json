@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "daily-met",
-    "slug": "daily-met",
+    "name": "Met Roulette",
+    "slug": "met-roulette",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "dailymet",
+    "scheme": "metroulette",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

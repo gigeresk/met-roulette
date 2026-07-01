@@ -24,7 +24,7 @@ export default function RootLayout() {
   if (!fontsLoaded) return null; // or a minimal placeholder
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack screenOptions={{ headerShown: false, title: "Met Roulette" }}>
       <Stack.Screen name="index" />
     </Stack>
   );

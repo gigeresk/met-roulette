@@ -6,6 +6,7 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
+        title: "Met Roulette", // browser tab / document title (web)
         tabBarActiveTintColor: "#fff",
         tabBarInactiveTintColor: "#aaa",
         tabBarStyle: { backgroundColor: "#181a20", borderTopColor: "#222" },
@@ -14,7 +15,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="met"
         options={{
-          title: "The Met",
+          tabBarLabel: "The Met",
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="city-variant-outline" color={color} size={size} />
           ),
@@ -23,7 +24,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="moma"
         options={{
-          title: "MoMA",
+          tabBarLabel: "MoMA",
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="palette-outline" color={color} size={size} />
           ),
@@ -32,7 +33,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="aic"
         options={{
-          title: "AIC",
+          tabBarLabel: "AIC",
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="bank" color={color} size={size} />
           ),
@@ -41,7 +42,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="cma"
         options={{
-          title: "CMA",
+          tabBarLabel: "CMA",
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="image-frame" color={color} size={size} />
           ),
