@@ -79,14 +79,16 @@ let metaCache: Meta | null = null;
 async function loadMeta(): Promise<Meta> {
   if (metaCache) return metaCache;
 
+  // Total file size. We use a HEAD request because on a ranged (206) response the
+  // browser reports Content-Length as the *chunk* size, and the Content-Range header
+  // that carries the real total is not CORS-exposed. HEAD returns the full
+  // Content-Length, which is a CORS-safelisted response header we can read on web.
+  const head = await fetch(CSV_URL, { method: "HEAD" });
+  const size = parseInt(head.headers.get("content-length") || "0", 10);
+
+  // Header row (column names) from the first slice of the file.
   const res = await fetch(CSV_URL, { headers: { Range: "bytes=0-4095" } });
   const text = await res.text();
-
-  // "Content-Range: bytes 0-4095/72969795" → total size after the slash.
-  const contentRange = res.headers.get("content-range");
-  const size = contentRange
-    ? parseInt(contentRange.split("/")[1], 10)
-    : parseInt(res.headers.get("content-length") || "0", 10);
 
   const firstNl = text.indexOf("\n");
   const header = text
