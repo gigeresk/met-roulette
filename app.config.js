@@ -7,13 +7,11 @@ const SITES = {
   met: {
     name: "Met Roulette",
     scheme: "metroulette",
-    // TODO: replace with a real Met favicon if this placeholder is wrong.
-    favicon: "./assets/images/favicon.png",
+    favicon: "./assets/images/favicon-met.png",
   },
   moma: {
     name: "MoMA Roulette",
     scheme: "momaroulette",
-    // TODO: swap for the real MoMA favicon — currently a copy of the Met one.
     favicon: "./assets/images/favicon-moma.png",
   },
 };
