@@ -28,31 +28,24 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Speeds up `expo export` by reusing Metro's transform cache between runs.
-      - name: Cache Metro / Expo bundler
-        uses: actions/cache@v4
-        with:
-          path: |
-            .expo
-            node_modules/.cache
-            ${{ runner.temp }}/metro-cache
-          key: metro-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
-          restore-keys: |
-            metro-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
-            metro-${{ runner.os }}-
-
       - name: Lint
         run: npm run lint
 
       # Same codebase, two single-museum static exports (EXPO_PUBLIC_SITE picks
       # which museum tab is shown — see app/(tabs)/_layout.tsx and app.config.js).
+      #
+      # --clear is required: Metro's transform cache is keyed on file content,
+      # not on process.env values read inside those files, so without it the
+      # second export silently reuses the first export's inlined EXPO_PUBLIC_SITE
+      # and ships the wrong museum. (No Metro cache step here for the same
+      # reason — a cross-run cache would reintroduce the same bug.)
       - name: Web build — Met (metroulette.com)
-        run: npx expo export --platform web --output-dir dist-met
+        run: npx expo export --platform web --output-dir dist-met --clear
         env:
           EXPO_PUBLIC_SITE: met
 
       - name: Web build — MoMA (momaroulette.com)
-        run: npx expo export --platform web --output-dir dist-moma
+        run: npx expo export --platform web --output-dir dist-moma --clear
         env:
           EXPO_PUBLIC_SITE: moma
 

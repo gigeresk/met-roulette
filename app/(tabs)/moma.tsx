@@ -18,8 +18,17 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getRandomMomaArtwork, type MomaArtwork } from "../../lib/moma";
+import { SiteGate } from "@/components/SiteGate";
 
 export default function MoMARoulette() {
+  return (
+    <SiteGate site="moma">
+      <MoMAScreen />
+    </SiteGate>
+  );
+}
+
+function MoMAScreen() {
   const [loading, setLoading] = useState(true);
   const [art, setArt] = useState<MomaArtwork | null>(null);
   const [error, setError] = useState<string>("");

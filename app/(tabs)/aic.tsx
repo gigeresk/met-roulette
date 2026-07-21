@@ -17,6 +17,7 @@ import {
     View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { SiteGate } from "@/components/SiteGate";
 
 const BASE = "https://api.artic.edu/api/v1";
 
@@ -61,6 +62,14 @@ function aicRandomSearchUrl(size = 12) {
 
 
 export default function AICRoulette() {
+  return (
+    <SiteGate>
+      <AICScreen />
+    </SiteGate>
+  );
+}
+
+function AICScreen() {
   const [loading, setLoading] = useState(true);
   const [art, setArt] = useState<null | {
     id: number;

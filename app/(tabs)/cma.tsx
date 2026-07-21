@@ -17,6 +17,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { SiteGate } from "@/components/SiteGate";
 
 const BASE = "https://openaccess-api.clevelandart.org/api";
 
@@ -54,6 +55,14 @@ function cmaRandomUrl(limit = 12) {
 }
 
 export default function CMARoulette() {
+  return (
+    <SiteGate>
+      <CMAScreen />
+    </SiteGate>
+  );
+}
+
+function CMAScreen() {
   const [loading, setLoading] = useState(true);
   const [art, setArt] = useState<null | {
     id: number;

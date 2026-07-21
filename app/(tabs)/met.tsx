@@ -17,6 +17,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { SiteGate } from "@/components/SiteGate";
 
 
 const BASE = "https://collectionapi.metmuseum.org/public/collection/v1";
@@ -27,6 +28,14 @@ function yyyymmdd(d = new Date()) {
 }
 
 export default function TabHome() {
+  return (
+    <SiteGate site="met">
+      <MetScreen />
+    </SiteGate>
+  );
+}
+
+function MetScreen() {
   const [ids, setIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
   const [art, setArt] = useState<null | {
