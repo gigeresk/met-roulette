@@ -4,9 +4,28 @@
 import { ScrollViewStyleReset } from "expo-router/html";
 import { type PropsWithChildren } from "react";
 
-const TITLE = "Met Roulette";
-const DESCRIPTION =
-  "Random public-domain artwork from The Met, MoMA, the Art Institute of Chicago, and the Cleveland Museum of Art.";
+// Same app ships as single-museum sites (metroulette.com / momaroulette.com)
+// via EXPO_PUBLIC_SITE at build time. Unset (local dev) shows every museum.
+const SITE = process.env.EXPO_PUBLIC_SITE;
+
+const COPY: Record<string, { title: string; description: string }> = {
+  met: {
+    title: "Met Roulette",
+    description:
+      "Random public-domain artwork from The Metropolitan Museum of Art.",
+  },
+  moma: {
+    title: "MoMA Roulette",
+    description:
+      "Random public-domain artwork from The Museum of Modern Art.",
+  },
+};
+
+const { title: TITLE, description: DESCRIPTION } = COPY[SITE ?? ""] ?? {
+  title: "Met Roulette",
+  description:
+    "Random public-domain artwork from The Met, MoMA, the Art Institute of Chicago, and the Cleveland Museum of Art.",
+};
 
 export default function Root({ children }: PropsWithChildren) {
   return (

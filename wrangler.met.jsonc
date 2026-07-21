@@ -1,0 +1,11 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "met-roulette",
+  "compatibility_date": "2026-06-01",
+  // Static-assets-only Worker — no server code. `EXPO_PUBLIC_SITE=met npx expo
+  // export --platform web --output-dir dist-met` writes the site to ./dist-met,
+  // which Cloudflare serves directly. Bound to metroulette.com.
+  "assets": {
+    "directory": "./dist-met"
+  }
+}

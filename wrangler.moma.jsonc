@@ -1,0 +1,12 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "moma-roulette",
+  "compatibility_date": "2026-06-01",
+  // Static-assets-only Worker — no server code. `EXPO_PUBLIC_SITE=moma npx expo
+  // export --platform web --output-dir dist-moma` writes the site to ./dist-moma,
+  // which Cloudflare serves directly. Bind to momaroulette.com via a Custom
+  // Domain in the Cloudflare dashboard after the first deploy.
+  "assets": {
+    "directory": "./dist-moma"
+  }
+}

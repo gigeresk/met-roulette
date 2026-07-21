@@ -44,13 +44,29 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Web build (expo export)
-        run: npx expo export --platform web
+      # Same codebase, two single-museum static exports (EXPO_PUBLIC_SITE picks
+      # which museum tab is shown — see app/(tabs)/_layout.tsx and app.config.js).
+      - name: Web build — Met (metroulette.com)
+        run: npx expo export --platform web --output-dir dist-met
+        env:
+          EXPO_PUBLIC_SITE: met
 
-      # Deploy the freshly-built ./dist to Cloudflare. Only on pushes to main —
-      # PR runs still lint + build for validation but never publish.
-      - name: Deploy to Cloudflare
+      - name: Web build — MoMA (momaroulette.com)
+        run: npx expo export --platform web --output-dir dist-moma
+        env:
+          EXPO_PUBLIC_SITE: moma
+
+      # Deploy the freshly-built dist-met/dist-moma to their own Cloudflare
+      # Workers. Only on pushes to main — PR runs still lint + build for
+      # validation but never publish.
+      - name: Deploy Met to Cloudflare
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: npx wrangler deploy
+        run: npx wrangler deploy --config wrangler.met.jsonc
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+      - name: Deploy MoMA to Cloudflare
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: npx wrangler deploy --config wrangler.moma.jsonc
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
