@@ -240,7 +240,7 @@ function AICScreen() {
                 name="shuffle"
                 size={22}
                 color="#181a20"
-                style={{ marginLeft: 8 }}
+                style={{ marginLeft: 8, marginTop: 10 }}
               />
             </Pressable>
         </View>

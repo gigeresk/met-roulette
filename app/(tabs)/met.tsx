@@ -200,7 +200,7 @@ async function saveCurrentImage() {
             accessibilityLabel="Shuffle artwork"
           >
             <Text style={styles.brandText}>Roulette</Text>
-            <MaterialCommunityIcons name="shuffle" size={22} color="#fff" style={{ marginLeft: 8 }} />
+            <MaterialCommunityIcons name="shuffle" size={22} color="#fff" style={{ marginLeft: 8, marginTop: 10 }} />
           </Pressable>
         </View>
 

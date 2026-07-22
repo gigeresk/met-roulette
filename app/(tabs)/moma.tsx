@@ -121,12 +121,12 @@ function MoMAScreen() {
             style={styles.rouletteBtn}
             accessibilityLabel="Shuffle artwork"
           >
-            <Text style={styles.brandText}>Roulette</Text>
+            <Text style={styles.brandText}>RoULETTE</Text>
             <MaterialCommunityIcons
               name="shuffle"
               size={22}
               color="#181a20"
-              style={{ marginLeft: 8 }}
+              style={{ marginLeft: 8, marginTop: 2 }}
             />
           </Pressable>
         </View>
@@ -195,10 +195,15 @@ const styles = StyleSheet.create({
   brandMark: {
     color: "#000",
     fontSize: 30,
-    fontWeight: "900",
+    fontFamily: "Archivo_900Black",
     letterSpacing: -1,
   },
-  brandText: { color: "#181a20", fontSize: 30, fontFamily: "PlayfairDisplay_400Regular" },
+  brandText: {
+    color: "#181a20",
+    fontSize: 28,
+    fontFamily: "Archivo_800ExtraBold",
+    letterSpacing: -0.5,
+  },
   rouletteBtn: { flexDirection: "row", alignItems: "center" },
 
   center: { alignItems: "center", padding: 24 },
@@ -207,11 +212,11 @@ const styles = StyleSheet.create({
   card: { backgroundColor: "#fff", borderRadius: 16, padding: 12 },
   image: { width: "100%", height: 360, borderRadius: 12, backgroundColor: "#fff" },
   meta: { marginTop: 12, gap: 4 },
-  title: { fontSize: 18, color: "#000", fontFamily: "PlayfairDisplay_700Bold", textAlign: "center" },
+  title: { fontSize: 18, color: "#000", fontFamily: "Archivo_700Bold", textAlign: "center" },
   byline: {
     color: "#181a20",
     textAlign: "center",
-    fontFamily: "PlayfairDisplay_400Regular",
+    fontFamily: "Archivo_400Regular",
   },
   link: { color: "#8ab4f8", marginTop: 6 },
   caption: { color: "#9aa0a6", marginTop: 4, fontSize: 12 },

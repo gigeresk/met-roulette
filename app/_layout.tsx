@@ -1,5 +1,11 @@
 // app/_layout.tsx
 import {
+  Archivo_400Regular,
+  Archivo_700Bold,
+  Archivo_800ExtraBold,
+  Archivo_900Black,
+} from "@expo-google-fonts/archivo";
+import {
   PlayfairDisplay_400Regular,
   PlayfairDisplay_700Bold,
   useFonts,
@@ -15,6 +21,10 @@ export default function RootLayout() {
   const [fontsLoaded] = useFonts({
     PlayfairDisplay_400Regular,
     PlayfairDisplay_700Bold,
+    Archivo_400Regular,
+    Archivo_700Bold,
+    Archivo_800ExtraBold,
+    Archivo_900Black,
   });
 
   useEffect(() => {

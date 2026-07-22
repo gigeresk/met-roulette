@@ -216,7 +216,7 @@ function CMAScreen() {
             />
             <Pressable onPress={shuffle} style={styles.rouletteBtn} accessibilityLabel="Shuffle artwork">
               <Text style={styles.brandText}>Roulette</Text>
-              <MaterialCommunityIcons name="shuffle" size={22} color="#181a20" style={{ marginLeft: 8 }} />
+              <MaterialCommunityIcons name="shuffle" size={22} color="#181a20" style={{ marginLeft: 8, marginTop: 10 }} />
             </Pressable>
         </View>
 
