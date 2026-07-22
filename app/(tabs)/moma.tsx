@@ -116,22 +116,18 @@ function MoMAScreen() {
       >
         <View style={styles.brandBar}>
           <Text style={styles.brandMark}>MoMA</Text>
-          <Text style={styles.brandText}>Roulette</Text>
-        </View>
-
-        <View style={styles.controls}>
           <Pressable
             onPress={shuffle}
-            style={styles.btn}
+            style={styles.rouletteBtn}
             accessibilityLabel="Shuffle artwork"
           >
+            <Text style={styles.brandText}>Roulette</Text>
             <MaterialCommunityIcons
               name="shuffle"
-              size={18}
-              color="#fff"
-              style={{ marginRight: 8 }}
+              size={22}
+              color="#181a20"
+              style={{ marginLeft: 8 }}
             />
-            <Text style={styles.btnText}>Random</Text>
           </Pressable>
         </View>
 
@@ -203,8 +199,8 @@ const styles = StyleSheet.create({
     letterSpacing: -1,
   },
   brandText: { color: "#181a20", fontSize: 30, fontFamily: "PlayfairDisplay_400Regular" },
+  rouletteBtn: { flexDirection: "row", alignItems: "center" },
 
-  controls: { flexDirection: "row", justifyContent: "center", alignItems: "center" },
   center: { alignItems: "center", padding: 24 },
   muted: { color: "#9aa0a6", marginTop: 8, textAlign: "center" },
   error: { color: "#ff6b6b", textAlign: "center" },
@@ -220,17 +216,4 @@ const styles = StyleSheet.create({
   link: { color: "#8ab4f8", marginTop: 6 },
   caption: { color: "#9aa0a6", marginTop: 4, fontSize: 12 },
   footer: { color: "#9aa0a6", textAlign: "center", marginVertical: 24 },
-  btn: {
-    backgroundColor: "#2a2f3a",
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 12,
-    flexDirection: "row",
-    alignSelf: "center",
-  },
-  btnText: {
-    color: "white",
-    fontWeight: "700",
-    fontFamily: "PlayfairDisplay_400Regular",
-  },
 });

@@ -230,23 +230,19 @@ function AICScreen() {
             accessible
             accessibilityLabel="AIC"
             />
-            <Text style={styles.brandText}>Roulette</Text>
-        </View>
-
-        <View style={styles.controls}>
-          <Pressable
-            onPress={shuffle}
-            style={styles.btn}
-            accessibilityLabel="Shuffle artwork"
-          >
-            <MaterialCommunityIcons
-              name="shuffle"
-              size={18}
-              color="#fff"
-              style={{ marginRight: 8 }}
-            />
-            <Text style={styles.btnText}>Random</Text>
-          </Pressable>
+            <Pressable
+              onPress={shuffle}
+              style={styles.rouletteBtn}
+              accessibilityLabel="Shuffle artwork"
+            >
+              <Text style={styles.brandText}>Roulette</Text>
+              <MaterialCommunityIcons
+                name="shuffle"
+                size={22}
+                color="#181a20"
+                style={{ marginLeft: 8 }}
+              />
+            </Pressable>
         </View>
 
         {loading && (
@@ -321,8 +317,7 @@ const styles = StyleSheet.create({
     height: 34,                   // tweak to taste
     width: 40,                   // keep proportion of your PNG
   },
-  
-  controls: { flexDirection: "row", justifyContent: "center", alignItems: "center" },
+  rouletteBtn: { flexDirection: "row", alignItems: "center" },
   center: { alignItems: "center", padding: 24 },
   muted: { color: "#9aa0a6", marginTop: 8, textAlign: "center" },
   error: { color: "#ff6b6b", textAlign: "center" },
@@ -338,17 +333,4 @@ const styles = StyleSheet.create({
   link: { color: "#8ab4f8", marginTop: 6 },
   caption: { color: "#9aa0a6", marginTop: 4, fontSize: 12 },
   footer: { color: "#9aa0a6", textAlign: "center", marginVertical: 24 },
-  btn: {
-    backgroundColor: "#2a2f3a",
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 12,
-    flexDirection: "row",
-    alignSelf: "center",
-  },
-  btnText: { 
-    color: "white", 
-    fontWeight: "700",
-    fontFamily: "PlayfairDisplay_400Regular",
-    },
 });

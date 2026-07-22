@@ -194,13 +194,13 @@ async function saveCurrentImage() {
             accessible
             accessibilityLabel="The Met"
           />
-          <Text style={styles.brandText}>Roulette</Text>
-        </View>
-
-        <View style={styles.controls}>
-          <Pressable onPress={shuffle} style={styles.btn} accessibilityLabel="Shuffle artwork">
-            <MaterialCommunityIcons name="shuffle" size={18} color="#fff" style={{ marginRight: 8 }} />
-            <Text style={styles.btnText}>Random</Text>
+          <Pressable
+            onPress={shuffle}
+            style={styles.rouletteBtn}
+            accessibilityLabel="Shuffle artwork"
+          >
+            <Text style={styles.brandText}>Roulette</Text>
+            <MaterialCommunityIcons name="shuffle" size={22} color="#fff" style={{ marginLeft: 8 }} />
           </Pressable>
         </View>
 
@@ -266,7 +266,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     overflow: "hidden",   
   },
-  controls: { flexDirection: "row", justifyContent: "center", alignItems: "center" },
   control: { color: "#8ab4f8", fontSize: 16 },
   center: { alignItems: "center", padding: 24 },
   muted: { color: "#9aa0a6", marginTop: 8, textAlign: "center" },
@@ -288,19 +287,6 @@ const styles = StyleSheet.create({
   link: { color: "#8ab4f8", marginTop: 6 },
   caption: { color: "#9aa0a6", marginTop: 4, fontSize: 12 },
   footer: { color: "#9aa0a6", textAlign: "center", marginVertical: 24 },
-  btn: {
-    backgroundColor: "#2a2f3a",
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 12,
-    flexDirection: "row",
-    alignSelf: "center",
-  },
-  btnText: {
-    color: "white",
-    fontWeight: "700",
-    fontFamily: "PlayfairDisplay_400Regular",
-  },
   safe: { flex: 1, backgroundColor: "#101014" },
   brandBar: {
     backgroundColor: "#e4002b",  
@@ -320,5 +306,9 @@ const styles = StyleSheet.create({
     fontFamily: "PlayfairDisplay_400Regular",
     fontSize: 30,
   },
-  
+  rouletteBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
 });
