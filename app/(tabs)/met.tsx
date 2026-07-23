@@ -187,6 +187,7 @@ async function saveCurrentImage() {
         }
       >
         <View style={styles.brandBar}>
+          <View style={styles.brandSpacer} />
           <Image
             source={require("../../assets/images/met-logo.png")}
             style={styles.brandLogo}
@@ -200,7 +201,7 @@ async function saveCurrentImage() {
             accessibilityLabel="Shuffle artwork"
           >
             <Text style={styles.brandText}>Roulette</Text>
-            <MaterialCommunityIcons name="shuffle" size={22} color="#fff" style={{ marginLeft: 8, marginTop: 10 }} />
+            <MaterialCommunityIcons name="shuffle" size={22} color="#fff" style={{ marginLeft: 8, marginTop: 0 }} />
           </Pressable>
         </View>
 
@@ -309,6 +310,9 @@ const styles = StyleSheet.create({
   rouletteBtn: {
     flexDirection: "row",
     alignItems: "center",
+  },
+  brandSpacer: {
+    width: 30,
   },
 
 });

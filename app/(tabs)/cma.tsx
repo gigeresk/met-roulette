@@ -207,6 +207,7 @@ function CMAScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         <View style={styles.brandBar}>
+            <View style={styles.brandSpacer} />
             <Image
             source={require("../../assets/images/cma-logo.png")}
             style={styles.brandLogo}
@@ -216,7 +217,7 @@ function CMAScreen() {
             />
             <Pressable onPress={shuffle} style={styles.rouletteBtn} accessibilityLabel="Shuffle artwork">
               <Text style={styles.brandText}>Roulette</Text>
-              <MaterialCommunityIcons name="shuffle" size={22} color="#181a20" style={{ marginLeft: 8, marginTop: 10 }} />
+              <MaterialCommunityIcons name="shuffle" size={22} color="#181a20" style={{ marginLeft: 8, marginTop: 0 }} />
             </Pressable>
         </View>
 
@@ -287,6 +288,7 @@ const styles = StyleSheet.create({
   },
   brandText: { color: "#181a20", fontSize: 30, fontFamily: "PlayfairDisplay_400Regular" },
   rouletteBtn: { flexDirection: "row", alignItems: "center" },
+  brandSpacer: { width: 30 },
   center: { alignItems: "center", padding: 24 },
   muted: { color: "#9aa0a6", marginTop: 8, textAlign: "center" },
   error: { color: "#ff6b6b", textAlign: "center" },

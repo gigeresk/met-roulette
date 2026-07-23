@@ -223,6 +223,7 @@ function AICScreen() {
       >
 
         <View style={styles.brandBar}>
+            <View style={styles.brandSpacer} />
             <Image
             source={require("../../assets/images/aic-logo.png")}
             style={styles.brandLogo}
@@ -240,7 +241,7 @@ function AICScreen() {
                 name="shuffle"
                 size={22}
                 color="#181a20"
-                style={{ marginLeft: 8, marginTop: 10 }}
+                style={{ marginLeft: 8, marginTop: 0 }}
               />
             </Pressable>
         </View>
@@ -318,6 +319,7 @@ const styles = StyleSheet.create({
     width: 40,                   // keep proportion of your PNG
   },
   rouletteBtn: { flexDirection: "row", alignItems: "center" },
+  brandSpacer: { width: 30 },
   center: { alignItems: "center", padding: 24 },
   muted: { color: "#9aa0a6", marginTop: 8, textAlign: "center" },
   error: { color: "#ff6b6b", textAlign: "center" },
