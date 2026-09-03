@@ -11,4 +11,6 @@ updates:
     labels:
       - "dependencies"
       - "moma-collection"
+    assignees:
+      - "gigeresk"
  
