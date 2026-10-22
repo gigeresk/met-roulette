@@ -248,7 +248,8 @@ async function saveCurrentImage() {
         )}
 
         <Text style={styles.footer}>
-          Images courtesy of The Metropolitan Museum of Art (Public Domain/CC0).
+          Images courtesy of The Metropolitan Museum of Art (Public Domain/CC0).{"\n"}
+          A project by wormcrust, Adam Lacue, and gigeresk
         </Text>
       </ScrollView>
     </SafeAreaView>

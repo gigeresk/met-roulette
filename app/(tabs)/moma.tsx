@@ -173,7 +173,8 @@ function MoMAScreen() {
         )}
 
         <Text style={styles.footer}>
-          Images and data courtesy of The Museum of Modern Art (MoMA).
+          Images and data courtesy of The Museum of Modern Art (MoMA).{"\n"}
+          A project by wormcrust, Adam Lacue, and gigeresk
         </Text>
       </ScrollView>
     </SafeAreaView>
