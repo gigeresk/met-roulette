@@ -174,7 +174,10 @@ function MoMAScreen() {
 
         <Text style={styles.footer}>
           Images and data courtesy of The Museum of Modern Art (MoMA).{"\n"}
-          A project by wormcrust, Adam Lacue, and gigeresk
+          A project by{" "}
+          <Text style={styles.link} onPress={() => Linking.openURL("https://wormcrust.com")}>
+            Megan Bierman-Brophy
+          </Text>
         </Text>
       </ScrollView>
     </SafeAreaView>

@@ -264,7 +264,10 @@ function CMAScreen() {
 
         <Text style={styles.footer}>
           Images courtesy of the Cleveland Museum of Art (Public Domain/CC0).{"\n"}
-          A project by wormcrust, Adam Lacue, and gigeresk
+          A project by{" "}
+          <Text style={styles.link} onPress={() => Linking.openURL("https://wormcrust.com")}>
+            Megan Bierman-Brophy
+          </Text>
         </Text>
       </ScrollView>
     </SafeAreaView>
