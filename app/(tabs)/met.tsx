@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from "expo-file-system/legacy";
-import * as MediaLibrary from "expo-media-library";
+import * as MediaLibrary from "expo-media-library/legacy";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -126,6 +126,7 @@ async function saveCurrentImage() {
 
   // Might be wrong
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- existing behaviour, kept as is for the SDK upgrade
     if (ids.length) setRandomKey(k => k + 1);
   }, [ids]);
 

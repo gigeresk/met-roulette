@@ -1,7 +1,7 @@
 // app/+html.tsx
 // Root HTML document for the static web export. Sets the browser tab title and
 // social/link-preview metadata. Applied to every statically rendered route.
-import { ScrollViewStyleReset } from "expo-router/html";
+import { ScrollViewStyleReset, useServerDocumentContext } from "expo-router/html";
 import { type PropsWithChildren } from "react";
 
 // Same app ships as single-museum sites (metroulette.com / momaroulette.com)
@@ -39,8 +39,13 @@ const {
 };
 
 export default function Root({ children }: PropsWithChildren) {
+  // Expo SDK 58 passes the page's scripts, styles and favicon through this hook.
+  // Without headNodes and bodyNodes the page ships with no JavaScript and renders blank.
+  const { htmlAttributes, bodyAttributes, headNodes, bodyNodes } =
+    useServerDocumentContext();
+
   return (
-    <html lang="en">
+    <html lang="en" {...htmlAttributes}>
       <head>
         <meta charSet="utf-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
@@ -70,8 +75,12 @@ export default function Root({ children }: PropsWithChildren) {
 
         {/* Disable body scrolling on web so ScrollView works as expected. */}
         <ScrollViewStyleReset />
+        {headNodes}
       </head>
-      <body>{children}</body>
+      <body {...bodyAttributes}>
+        {children}
+        {bodyNodes}
+      </body>
     </html>
   );
 }

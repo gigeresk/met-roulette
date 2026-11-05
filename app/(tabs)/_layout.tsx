@@ -45,7 +45,7 @@ export default function TabsLayout() {
           options={{
             tabBarLabel: label,
             tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name={icon} color={color} size={size} />
+              <MaterialCommunityIcons name={icon} color={color as string} size={size} />
             ),
           }}
         />
