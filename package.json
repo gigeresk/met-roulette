@@ -50,7 +50,13 @@
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
     "typescript": "~5.9.2",
-    "wrangler": "^4.106.0"
+    "wrangler": "^4.157.0"
   },
-  "private": true
+  "private": true,
+  "overrides": {
+    "postcss": "^8.5.23",
+    "xcode": {
+      "uuid": "^11.1.1"
+    }
+  }
 }
