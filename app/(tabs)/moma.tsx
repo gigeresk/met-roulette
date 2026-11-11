@@ -1,5 +1,5 @@
 // app/(tabs)/moma.tsx
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Icon } from "@/components/Icon";
 import * as FileSystem from "expo-file-system/legacy";
 import * as MediaLibrary from "expo-media-library/legacy";
 import { useCallback, useEffect, useState } from "react";
@@ -122,7 +122,7 @@ function MoMAScreen() {
             accessibilityLabel="Shuffle artwork"
           >
             <Text style={styles.brandText}>RoULETTE</Text>
-            <MaterialCommunityIcons
+            <Icon
               name="shuffle"
               size={22}
               color="#181a20"

@@ -10,6 +10,8 @@
 // The retry-until-we-find-a-row-with-an-ImageURL behaviour mirrors the original
 // `get_random_image_url()`.
 
+import { SITE } from "./site";
+
 const CSV_URL =
   "https://media.githubusercontent.com/media/MuseumofModernArt/collection/main/Artworks.csv";
 
@@ -69,26 +71,36 @@ type Meta = {
     image: number;
     objectId: number;
     medium: number;
+    count: number;
   };
 };
 
-let metaCache: Meta | null = null;
+let metaPromise: Promise<Meta> | null = null;
 
 // Fetch just the header row (and total file size) once, then remember the column
 // layout so subsequent random picks only need a single small Range request each.
-async function loadMeta(): Promise<Meta> {
-  if (metaCache) return metaCache;
+function loadMeta(): Promise<Meta> {
+  if (!metaPromise) {
+    metaPromise = fetchMeta();
+    metaPromise.catch(() => {
+      metaPromise = null; // let a later shuffle retry
+    });
+  }
+  return metaPromise;
+}
 
-  // Total file size. We use a HEAD request because on a ranged (206) response the
-  // browser reports Content-Length as the *chunk* size, and the Content-Range header
-  // that carries the real total is not CORS-exposed. HEAD returns the full
-  // Content-Length, which is a CORS-safelisted response header we can read on web.
-  const head = await fetch(CSV_URL, { method: "HEAD" });
+async function fetchMeta(): Promise<Meta> {
+  // Total file size, and the header row (column names) from the first slice of
+  // the file, requested together. Size comes from a HEAD request because on a
+  // ranged (206) response the browser reports Content-Length as the *chunk*
+  // size, and the Content-Range header that carries the real total is not
+  // CORS-exposed. HEAD returns the full Content-Length, which is a
+  // CORS-safelisted response header we can read on web.
+  const [head, text] = await Promise.all([
+    fetch(CSV_URL, { method: "HEAD" }),
+    fetch(CSV_URL, { headers: { Range: "bytes=0-4095" } }).then((r) => r.text()),
+  ]);
   const size = parseInt(head.headers.get("content-length") || "0", 10);
-
-  // Header row (column names) from the first slice of the file.
-  const res = await fetch(CSV_URL, { headers: { Range: "bytes=0-4095" } });
-  const text = await res.text();
 
   const firstNl = text.indexOf("\n");
   const header = text
@@ -96,7 +108,7 @@ async function loadMeta(): Promise<Meta> {
     .replace(/^﻿/, "") // strip UTF-8 BOM
     .replace(/\r$/, "");
 
-  metaCache = {
+  return {
     size,
     headerEnd: firstNl + 1,
     cols: {
@@ -107,13 +119,18 @@ async function loadMeta(): Promise<Meta> {
       image: findColumnIndex(header, "ImageURL"),
       objectId: findColumnIndex(header, "ObjectID"),
       medium: findColumnIndex(header, "Medium"),
+      count: header.split(",").length,
     },
   };
-  return metaCache;
 }
 
-// Grab a random 32 KB window of the CSV, take a clean row out of the middle, and keep
-// retrying (like the original parser) until we land on a work that actually has an image.
+// Start as soon as the app loads, alongside the rest of its startup (not on the
+// Met site, which bundles this screen but never shows it).
+if (typeof window !== "undefined" && SITE !== "met") loadMeta().catch(() => {});
+
+// Grab a random 32 KB window of the CSV, pick one of the complete rows in it that has an
+// image, and keep retrying (like the original parser) until a window has one. A window
+// holds dozens of rows, so one request is almost always enough.
 export async function getRandomMomaArtwork(): Promise<MomaArtwork | null> {
   const meta = await loadMeta();
   if (!meta.size || meta.cols.image < 0) return null;
@@ -132,19 +149,15 @@ export async function getRandomMomaArtwork(): Promise<MomaArtwork | null> {
     });
     const text = await res.text();
 
-    // The window starts mid-row, so drop that partial first line and use the next
-    // complete line as our candidate record.
-    const firstNl = text.indexOf("\n");
-    if (firstNl < 0) continue;
-    const rest = text.slice(firstNl + 1);
-    const secondNl = rest.indexOf("\n");
-    if (secondNl < 0) continue;
+    // The window starts and ends mid-row, so drop the partial first and last lines.
+    const lines = text.split("\n").slice(1, -1);
+    const withImages = lines
+      .map((line) => parseCSVRow(line.replace(/\r$/, "")))
+      .filter((cols) => cols.length === meta.cols.count && cols[meta.cols.image]);
+    if (!withImages.length) continue; // no usable row here — retry, same as the original loop
 
-    const line = rest.slice(0, secondNl).replace(/\r$/, "");
-    const cols = parseCSVRow(line);
-
-    const img = cols[meta.cols.image] || "";
-    if (!img) continue; // no image on this row — retry, same as the original loop
+    const cols = withImages[Math.floor(Math.random() * withImages.length)];
+    const img = cols[meta.cols.image];
 
     return {
       id: cols[meta.cols.objectId] || "",

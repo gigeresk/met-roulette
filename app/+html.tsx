@@ -231,6 +231,16 @@ const XP_SCROLLBAR_SCRIPT = `(function () {
   else window.addEventListener("load", build);
 })();`;
 
+// Hosts each site talks to once its JavaScript runs. Connecting to them up
+// front saves a DNS + TLS round trip each before the first artwork. Data hosts
+// are fetch()ed with CORS, image hosts load plain <img>s; the preconnect's
+// crossorigin has to match or the browser opens a second connection.
+const ORIGINS: Record<string, { data: string; images: string }> = {
+  met: { data: "https://collectionapi.metmuseum.org", images: "https://images.metmuseum.org" },
+  moma: { data: "https://media.githubusercontent.com", images: "https://www.moma.org" },
+};
+const { data: DATA_ORIGIN, images: IMAGE_ORIGIN } = ORIGINS[SITE ?? ""] ?? ORIGINS.met;
+
 export default function Root({ children }: PropsWithChildren) {
   // Expo SDK 58 passes the page's scripts, styles and favicon through this hook.
   // Without headNodes and bodyNodes the page ships with no JavaScript and renders blank.
@@ -268,6 +278,13 @@ export default function Root({ children }: PropsWithChildren) {
 
         {/* Disable body scrolling on web so ScrollView works as expected. */}
         <ScrollViewStyleReset />
+
+        <link rel="preconnect" href={DATA_ORIGIN} crossOrigin="anonymous" />
+        <link rel="preconnect" href={IMAGE_ORIGIN} />
+        {/* The Met's object ID list (lib/met.ts), fetched in parallel with the JS. */}
+        {SITE !== "moma" && (
+          <link rel="preload" href="/met-ids.json" as="fetch" crossOrigin="anonymous" />
+        )}
 
         {/* XP scrollbars when framed (see XP_SCROLLBAR_CSS above). */}
         <script dangerouslySetInnerHTML={{ __html: XP_SCROLLBAR_SCRIPT }} />

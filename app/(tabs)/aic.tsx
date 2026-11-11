@@ -1,5 +1,5 @@
 // app/(tabs)/aic.tsx
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Icon } from "@/components/Icon";
 import * as FileSystem from "expo-file-system/legacy";
 import * as MediaLibrary from "expo-media-library/legacy";
 import { useCallback, useEffect, useState } from "react";
@@ -237,7 +237,7 @@ function AICScreen() {
               accessibilityLabel="Shuffle artwork"
             >
               <Text style={styles.brandText}>Roulette</Text>
-              <MaterialCommunityIcons
+              <Icon
                 name="shuffle"
                 size={22}
                 color="#181a20"

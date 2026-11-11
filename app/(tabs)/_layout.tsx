@@ -1,5 +1,5 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Tabs } from "expo-router";
+import { Icon } from "@/components/Icon";
+import { Slot, Tabs } from "expo-router";
 
 // Same app ships as single-museum sites (metroulette.com / momaroulette.com)
 // via EXPO_PUBLIC_SITE at build time. Unset (local dev) shows every museum.
@@ -24,6 +24,11 @@ const ALL_TABS = [
 const tabs = SITE ? ALL_TABS.filter((t) => t.name === SITE) : ALL_TABS;
 
 export default function TabsLayout() {
+  // A single-museum site has no tab bar to show, so skip the tab navigator.
+  // (Its server render of the hidden bar also didn't match the browser's,
+  // which made React throw the static HTML away on /met and /moma.)
+  if (SITE) return <Slot />;
+
   return (
     <Tabs
       screenOptions={{
@@ -45,7 +50,7 @@ export default function TabsLayout() {
           options={{
             tabBarLabel: label,
             tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name={icon} color={color as string} size={size} />
+              <Icon name={icon} color={color as string} size={size} />
             ),
           }}
         />

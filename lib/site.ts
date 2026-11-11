@@ -3,3 +3,6 @@
 export type Site = "met" | "moma";
 
 export const SITE = process.env.EXPO_PUBLIC_SITE as Site | undefined;
+
+// Browser tab / document title.
+export const SITE_TITLE = SITE === "moma" ? "MoMA Roulette" : "Met Roulette";

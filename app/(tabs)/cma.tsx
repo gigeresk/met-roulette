@@ -1,5 +1,5 @@
 // app/(tabs)/cma.tsx
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Icon } from "@/components/Icon";
 import * as FileSystem from "expo-file-system/legacy";
 import * as MediaLibrary from "expo-media-library/legacy";
 import { useCallback, useEffect, useState } from "react";
@@ -217,7 +217,7 @@ function CMAScreen() {
             />
             <Pressable onPress={shuffle} style={styles.rouletteBtn} accessibilityLabel="Shuffle artwork">
               <Text style={styles.brandText}>Roulette</Text>
-              <MaterialCommunityIcons name="shuffle" size={22} color="#181a20" style={{ marginLeft: 8, marginTop: 0 }} />
+              <Icon name="shuffle" size={22} color="#181a20" style={{ marginLeft: 8, marginTop: 0 }} />
             </Pressable>
         </View>
 

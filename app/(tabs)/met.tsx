@@ -1,4 +1,3 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from "expo-file-system/legacy";
 import * as MediaLibrary from "expo-media-library/legacy";
@@ -17,11 +16,9 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Icon } from "@/components/Icon";
 import { SiteGate } from "@/components/SiteGate";
-
-
-const BASE = "https://collectionapi.metmuseum.org/public/collection/v1";
-const STORAGE_KEYS = { IDS: "metObjectIDs" };
+import { getRandomMetArtwork, type MetArtwork } from "@/lib/met";
 
 export default function TabHome() {
   return (
@@ -32,12 +29,8 @@ export default function TabHome() {
 }
 
 function MetScreen() {
-  const [ids, setIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
-  const [art, setArt] = useState<null | {
-    id: number; title: string; artist: string; date: string; img: string; url: string;
-    department?: string; creditLine?: string;
-  }>(null);
+  const [art, setArt] = useState<MetArtwork | null>(null);
   const [error, setError] = useState<string>("");
 
   // pull-to-refresh state
@@ -93,24 +86,23 @@ async function saveCurrentImage() {
 
 
 
-  // load or fetch the global ID list (cached)
+  // Earlier versions cached the Met's full 3.4 MB ID list here; free that space.
+  useEffect(() => {
+    AsyncStorage.removeItem("metObjectIDs").catch(() => {});
+  }, []);
+
+  // pick a random artwork (on load, shuffle, and pull-to-refresh)
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      setLoading(true);
+      setArt(null);
+      setError("");
       try {
-        setLoading(true);
-        setError("");
-        const cached = await AsyncStorage.getItem(STORAGE_KEYS.IDS);
-        if (cached) {
-          const arr = JSON.parse(cached) as number[];
-          if (!cancelled) setIds(arr);
-        } else {
-          const res = await fetch(`${BASE}/objects`);
-          const data = (await res.json()) as { objectIDs?: number[] };
-          const arr = data?.objectIDs ?? [];
-          await AsyncStorage.setItem(STORAGE_KEYS.IDS, JSON.stringify(arr));
-          if (!cancelled) setIds(arr);
-        }
+        const picked = await getRandomMetArtwork(() => cancelled);
+        if (cancelled) return;
+        if (picked) setArt(picked);
+        else setError("Couldn’t find a CC0 image right now. Pull to refresh.");
       } catch {
         if (!cancelled) setError("Failed to load object IDs.");
       } finally {
@@ -118,62 +110,7 @@ async function saveCurrentImage() {
       }
     })();
     return () => { cancelled = true; };
-  }, []);
-
-  // Might be wrong
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- existing behaviour, kept as is for the SDK upgrade
-    if (ids.length) setRandomKey(k => k + 1);
-  }, [ids]);
-
-  // pick the day’s artwork
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      if (!ids.length) return;
-
-      setLoading(true);
-      setArt(null);
-      setError("");
-
-      const startIndex = Math.floor(Math.random() * ids.length);
-      const TRY_LIMIT = 200;
-      const STRIDE = 9973;
-
-      for (let i = 0; i < TRY_LIMIT && !cancelled; i++) {
-        const idx = (startIndex + i * STRIDE) % ids.length;
-        const objectID = ids[idx];
-        try {
-          const r = await fetch(`${BASE}/objects/${objectID}`);
-          const o = await r.json();
-          if (o?.isPublicDomain && (o.primaryImageSmall || o.primaryImage)) {
-            if (!cancelled) {
-              setArt({
-                id: objectID,
-                title: o.title || "Untitled",
-                artist: o.artistDisplayName || "Unknown",
-                date: o.objectDate || "",
-                img: o.primaryImageSmall || o.primaryImage,
-                url: o.objectURL || "",
-                department: o.department,
-                creditLine: o.creditLine,
-              });
-              setLoading(false);
-            }
-            return;
-          }
-        } catch {
-          // continue
-        }
-      }
-
-      if (!cancelled) {
-        setLoading(false);
-        setError("Couldn’t find a CC0 image right now. Pull to refresh.");
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [ids, randomKey, refreshKey]); // include refreshKey
+  }, [randomKey, refreshKey]);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -198,7 +135,7 @@ async function saveCurrentImage() {
             accessibilityLabel="Shuffle artwork"
           >
             <Text style={styles.brandText}>Roulette</Text>
-            <MaterialCommunityIcons name="shuffle" size={22} color="#fff" style={{ marginLeft: 8, marginTop: 0 }} />
+            <Icon name="shuffle" size={22} color="#fff" style={{ marginLeft: 8, marginTop: 0 }} />
           </Pressable>
         </View>
 
