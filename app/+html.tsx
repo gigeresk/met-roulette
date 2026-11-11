@@ -46,10 +46,11 @@ const {
 // has to live here. The script injects a <style> instead of setting a class on
 // <html>, so nothing React renders is changed before hydration.
 //
-// Chrome/Edge/Safari draw the full skin via ::-webkit-scrollbar. Firefox only
-// supports scrollbar colors, so it gets XP colors on its own scrollbar shape.
-// (Chrome ignores ::-webkit-scrollbar once scrollbar-color is set, hence the
-// @supports guard.)
+// Chrome/Edge/Safari draw the skin natively via ::-webkit-scrollbar. Firefox
+// can only recolor its own (often thin, overlay) scrollbar, so there the script
+// hides the native scrollbar and draws a working 17px XP scrollbar itself,
+// kept in sync with whichever element is scrolling (the React Native Web
+// ScrollView), with arrow buttons, track paging and a draggable thumb.
 const XP_CHEVRON = (d: string) =>
   `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15'%3E%3Cpath d='${d}' fill='none' stroke='%234d6185' stroke-width='2'/%3E%3C/svg%3E") center / 15px 15px no-repeat`;
 const XP_BUTTON_FACE = "linear-gradient(135deg, #e1eafe 0%, #c7d7fc 45%, #b4c8f6 100%)";
@@ -88,19 +89,146 @@ const XP_SCROLLBAR_CSS = `
 ::-webkit-scrollbar-button:single-button:vertical:increment:hover { background: ${XP_CHEVRON("M3.5 5.5l4 4 4-4")}, ${XP_BUTTON_HOVER}; }
 ::-webkit-scrollbar-button:single-button:horizontal:decrement:hover { background: ${XP_CHEVRON("M9.5 3.5l-4 4 4 4")}, ${XP_BUTTON_HOVER}; }
 ::-webkit-scrollbar-button:single-button:horizontal:increment:hover { background: ${XP_CHEVRON("M5.5 3.5l4 4-4 4")}, ${XP_BUTTON_HOVER}; }
-@supports not selector(::-webkit-scrollbar) {
-  * { scrollbar-color: #b4c8f6 #f3f1ec; }
+`;
+
+// Firefox: styles for the script-drawn scrollbar (#xp-sb), same look as above.
+const XP_FALLBACK_CSS = `
+* { scrollbar-width: none; }
+#xp-sb {
+  position: fixed;
+  z-index: 2147483647;
+  width: 17px;
+  display: none;
+  flex-direction: column;
+  background: linear-gradient(to right, #eeede5, #fdfdfa 35%, #f3f1ec);
+  user-select: none;
+  touch-action: none;
 }
+#xp-sb.on { display: flex; }
+#xp-sb .xp-btn, #xp-sb .xp-thumb {
+  box-sizing: border-box;
+  border: 1px solid #fff;
+  border-radius: 3px;
+}
+#xp-sb .xp-btn { flex: none; height: 17px; }
+#xp-sb .xp-up { background: ${XP_CHEVRON("M3.5 9.5l4-4 4 4")}, ${XP_BUTTON_FACE}; }
+#xp-sb .xp-down { background: ${XP_CHEVRON("M3.5 5.5l4 4 4-4")}, ${XP_BUTTON_FACE}; }
+#xp-sb .xp-up:hover { background: ${XP_CHEVRON("M3.5 9.5l4-4 4 4")}, ${XP_BUTTON_HOVER}; }
+#xp-sb .xp-down:hover { background: ${XP_CHEVRON("M3.5 5.5l4 4 4-4")}, ${XP_BUTTON_HOVER}; }
+#xp-sb .xp-track { flex: 1 1 auto; position: relative; }
+#xp-sb .xp-thumb {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: ${XP_GRIP_V}, linear-gradient(to right, #d2defd, #c3d4fb 50%, #b2c6f5);
+}
+#xp-sb .xp-thumb:hover { background: ${XP_GRIP_V}, linear-gradient(to right, #e3ecff, #d4e2ff 50%, #c4d6fc); }
 `;
 
 const XP_SCROLLBAR_SCRIPT = `(function () {
   var framed;
   try { framed = window.self !== window.top; } catch (e) { framed = true; }
   if (!framed) return;
+  var native = !!(window.CSS && CSS.supports && CSS.supports("selector(::-webkit-scrollbar)"));
   var style = document.createElement("style");
   style.id = "xp-scrollbars";
-  style.textContent = ${JSON.stringify(XP_SCROLLBAR_CSS)};
+  style.textContent = native ? ${JSON.stringify(XP_SCROLLBAR_CSS)} : ${JSON.stringify(XP_FALLBACK_CSS)};
   document.head.appendChild(style);
+  if (native) return;
+
+  // Script-drawn scrollbar (Firefox). Built after load so React has hydrated.
+  function build() {
+    var bar = document.createElement("div");
+    bar.id = "xp-sb";
+    bar.setAttribute("aria-hidden", "true");
+    bar.innerHTML = '<div class="xp-btn xp-up"></div><div class="xp-track"><div class="xp-thumb"></div></div><div class="xp-btn xp-down"></div>';
+    document.body.appendChild(bar);
+    var up = bar.children[0], track = bar.children[1], thumb = track.firstChild, down = bar.children[2];
+    var el = null, frame = 0;
+
+    function scrollable(n) {
+      if (!n || n === bar || !n.isConnected) return false;
+      var o = getComputedStyle(n).overflowY;
+      return (o === "auto" || o === "scroll") && n.scrollHeight > n.clientHeight + 1;
+    }
+    // The tallest scrolling element is the page's ScrollView.
+    function find() {
+      if (scrollable(el)) return el;
+      var best = null, all = document.body.getElementsByTagName("*");
+      for (var i = 0; i < all.length; i++) {
+        if (scrollable(all[i]) && (!best || all[i].clientHeight > best.clientHeight)) best = all[i];
+      }
+      return best;
+    }
+    function update() {
+      frame = 0;
+      el = find();
+      if (!el) { bar.className = ""; return; }
+      var r = el.getBoundingClientRect();
+      bar.className = "on";
+      bar.style.left = (r.right - 17) + "px";
+      bar.style.top = r.top + "px";
+      bar.style.height = r.height + "px";
+      var room = track.clientHeight;
+      var h = Math.min(room, Math.max(20, Math.round(room * el.clientHeight / el.scrollHeight)));
+      var max = el.scrollHeight - el.clientHeight;
+      thumb.style.height = h + "px";
+      thumb.style.top = Math.round((room - h) * (max > 0 ? el.scrollTop / max : 0)) + "px";
+    }
+    function schedule() { if (!frame) frame = requestAnimationFrame(update); }
+
+    // Arrow buttons: one step, then repeat while held.
+    function hold(btn, dy) {
+      btn.addEventListener("pointerdown", function (e) {
+        e.preventDefault();
+        if (!el) return;
+        el.scrollTop += dy;
+        var t = setTimeout(function again() { if (el) el.scrollTop += dy; t = setTimeout(again, 50); }, 350);
+        function stop() {
+          clearTimeout(t);
+          window.removeEventListener("pointerup", stop);
+          window.removeEventListener("pointercancel", stop);
+        }
+        window.addEventListener("pointerup", stop);
+        window.addEventListener("pointercancel", stop);
+      });
+    }
+    hold(up, -40);
+    hold(down, 40);
+
+    // Clicking the track pages up or down.
+    track.addEventListener("pointerdown", function (e) {
+      if (e.target !== track || !el) return;
+      var below = e.clientY > thumb.getBoundingClientRect().top;
+      el.scrollTop += (below ? 1 : -1) * el.clientHeight * 0.9;
+    });
+
+    // Dragging the thumb.
+    thumb.addEventListener("pointerdown", function (e) {
+      if (!el) return;
+      e.preventDefault();
+      thumb.setPointerCapture(e.pointerId);
+      var y0 = e.clientY, s0 = el.scrollTop;
+      var ratio = (el.scrollHeight - el.clientHeight) / Math.max(1, track.clientHeight - thumb.offsetHeight);
+      function move(ev) { el.scrollTop = s0 + (ev.clientY - y0) * ratio; }
+      function end() {
+        thumb.removeEventListener("pointermove", move);
+        thumb.removeEventListener("pointerup", end);
+        thumb.removeEventListener("pointercancel", end);
+      }
+      thumb.addEventListener("pointermove", move);
+      thumb.addEventListener("pointerup", end);
+      thumb.addEventListener("pointercancel", end);
+    });
+
+    document.addEventListener("scroll", schedule, true);
+    document.addEventListener("load", schedule, true); // images changing the height
+    window.addEventListener("resize", schedule);
+    setInterval(schedule, 500); // new artwork, route changes
+    update();
+  }
+  if (document.readyState === "complete") build();
+  else window.addEventListener("load", build);
 })();`;
 
 export default function Root({ children }: PropsWithChildren) {
