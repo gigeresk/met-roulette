@@ -23,10 +23,6 @@ import { SiteGate } from "@/components/SiteGate";
 const BASE = "https://collectionapi.metmuseum.org/public/collection/v1";
 const STORAGE_KEYS = { IDS: "metObjectIDs" };
 
-function yyyymmdd(d = new Date()) {
-  return d.toISOString().slice(0, 10).replace(/-/g, ""); // e.g. 20250910
-}
-
 export default function TabHome() {
   return (
     <SiteGate site="met">
@@ -90,7 +86,7 @@ async function saveCurrentImage() {
     }
     await MediaLibrary.saveToLibraryAsync(dl.uri);
     Alert.alert("Saved", "Image saved to your Photos.");
-  } catch (e) {
+  } catch {
     Alert.alert("Save failed", "Couldn’t save this image. Try again.");
   }
 }
